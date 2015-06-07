@@ -1,5 +1,5 @@
 # CodeFromLeetcode
-To download all your code from leetcode server automatically.
+To download all your code from leetcode server automatically. You can get all your submitted code and a report in HTML file containing your submission history.
 
 Usage:
 
@@ -11,7 +11,7 @@ Usage:
 
 Limit:
 
-    1. You can only login with a passwod and username. Login through third-party 
+    1. You can only login with a passwod and username. Login through a third-party 
        application is not supported now.
 
     2. Only the hard mode is implemented now. It can and only can download all your 
