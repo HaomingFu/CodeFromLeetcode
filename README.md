@@ -20,3 +20,5 @@ ToDo:
 
     1. Add simple mode: provide the option to download the most recent accepted code
     of each problem.
+
+    2. Add options to login via third-party applications.
