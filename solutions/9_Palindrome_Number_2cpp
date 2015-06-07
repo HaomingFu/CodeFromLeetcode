@@ -1,0 +1,19 @@
+class Solution {
+public:
+    bool isPalindrome(int x) {
+        int div = 1;
+        while ( x / div >= 10) 
+            div *= 10; 
+        while (x > 0){ 
+            if(x / div == x % 10){
+                x = x % div;
+                x = x / 10; 
+                div /= 100;
+            } else
+                return false;
+        }   
+        return true;
+            
+        
+    }
+};
