@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
+import re
+import sys
+import os
 import requests
 from lxml import etree
 from StringIO import StringIO
-import re, sys, os
 from ConfigParser import ConfigParser
 
 reload(sys)
@@ -13,7 +15,7 @@ char_map = {'\u000D':'\r', '\u000A':'\n',"\u0022":'"', '\u002C':',',
         "\u002D":'-','\u003B':';', '\u003D':'=',"\u003C":'<', "\u003E":'>'}
 BASE_URL = "https://leetcode.com"
 
-def getConfig():
+def get_config():
     config = ConfigParser()
     config.read('config.ini')
     usr = config.get('info', 'user')
@@ -28,7 +30,7 @@ def getConfig():
     return usr, passwd, mode
 
 def login():
-    usr, passwd, mode = getConfig()
+    usr, passwd, mode = get_config()
     login_url = "https://leetcode.com/accounts/login/"
     s = requests.session()
     resp = s.get(login_url)
@@ -55,12 +57,12 @@ def login():
 
     return s, req.text
 
-def extractQuestion(html):
+def extract_question(html):
     parser = etree.HTMLParser()
     tree = etree.parse(StringIO(html.encode('utf-8')), parser)
     trNodes = tree.findall(".//tr")
-    allProblems = []
-    solvedProblems = []
+    all_problems = []
+    solved_problems = []
     for ele in trNodes:
         if len(ele) != 5:
             continue
@@ -73,12 +75,12 @@ def extractQuestion(html):
         ac_rate = ele[3].text
         level = ele[4].text
 
-        allProblems.append(Problem(status, id,
+        all_problems.append(Problem(status, id,
                 href, title, ac_rate, level))
         if status != "None":
-            solvedProblems.append(Problem(status, id,
+            solved_problems.append(Problem(status, id,
                 href, title, ac_rate, level))
-    return allProblems, solvedProblems
+    return all_problems, solved_problems
 
 def getSubmissionResults(problem, session):
     link = BASE_URL + problem.href + "submissions"
@@ -137,7 +139,7 @@ def addTable2Report(problem, file, tableHTML):
 
 
 
-def getCode(session, link):
+def get_code(session, link):
     resp = session.get(link)
     scriptNodes = findAllElements(resp, 'script')
     if not scriptNodes:
@@ -150,7 +152,7 @@ def getCode(session, link):
         if result:
             return result.group(1), result.group(2)
 
-def formatCode(code, char_map):
+def format_code(code, char_map):
     code = code.replace('\u000D\u000A', '\n')
     for key in char_map:
         if key in code:
@@ -166,7 +168,7 @@ def writeCode2file(lang, code, id, title, no, location):
     fh.write(code)
     fh.close()
 
-def makeDir(dirName):
+def make_dir(dirName):
     if not os.path.exists(os.path.join(os.getcwd(),dirName)):
         os.makedirs(os.path.join(os.getcwd(), dirName))
 
@@ -188,16 +190,16 @@ class Problem:
 def main():
     session, html = login()
     createReport()
-    makeDir('solutions')
-    allProblems, solvedProblems = extractQuestion(html)
-    for problem in solvedProblems:
+    make_dir('solutions')
+    all_problems, solved_problems = extract_question(html)
+    for problem in solved_problems:
         codeLinks, table_nodes = getSubmissionResults(problem, session)
         addTable2Report(problem, 'report.html', getResultTable(table_nodes))
         count=0
         for link in codeLinks:
             count += 1
-            lang, code = getCode(session, BASE_URL + link)
-            code = formatCode(code, char_map)
+            lang, code = get_code(session, BASE_URL + link)
+            code = format_code(code, char_map)
             writeCode2file(lang, code, problem.id, problem.title, count, 'solutions')
         print "Done with problem " + problem.title
         print
